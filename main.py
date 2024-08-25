@@ -58,7 +58,7 @@ class SqlStorage:
     def insert_data(self, data_dict: dict) -> None:
         columns = ', '.join(data_dict.keys())
         placeholders = ':'+', :'.join(data_dict.keys())
-        query = f'INSERT INTO {self.table_name} (%s) VALUES (%s)' % (columns, placeholders)
+        query = f'INSERT INTO {self.table_name} (%s) VALUES (%s) ON CONFLICT (title, text) DO NOTHING' % (columns, placeholders)
         cur = self.conn.cursor()
         cur.execute(query, data_dict)
         self.conn.commit()
