@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  sampleapp:
+    user: airflow
+    image: sampleapp:v1
+
+    volumes:
+      - ./airflow:/opt/airflow
+
+    ports:
+      - "8082:8080"
+
+    command: airflow standalone
