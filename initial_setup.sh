@@ -1,16 +1,21 @@
-sudo apt install virtualenv
-virtualenv -p python3.10 .venv
-pip install -r requirements.txt
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Airflow installation
-export AIRFLOW_HOME=~/airflow
-export AIRFLOW_VERSION=2.10.0
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo docker build -t sampleapp:v1 .
+sudo docker compose up -d
 
-# Extract the version of Python you have installed. If you're currently using a Python version that is not supported by Airflow, you may want to set this manually.
-# See above for supported versions.
-export PYTHON_VERSION="$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
 
-export CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
-# For example this would install 2.10.0 with python 3.8: https://raw.githubusercontent.com/apache/airflow/constraints-2.10.0/constraints-3.8.txt
-
-pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
+# Solve permission error
+CONTAINER_ID="$(sudo docker compose ps -q)" # Get the id
+sudo docker exec -u root -ti $CONTAINER_ID bash
